@@ -1,220 +1,165 @@
-# 🛡️ Your Own AI API System
+# 🌌 Your Own API — Production-Grade Autonomous AI Platform
 
-A production-grade, highly secure, and rate-limited AI API Gateway built from scratch using Python, FastAPI, and SQLAlchemy. This system allows you to issue, track, and rate-limit your own custom API keys (format: `sk-xxxxxxxxxxxx`) while routing requests to either a local LLaMA instance (via Ollama) or cloud providers (Gemini, Claude).
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+**Your Own API** is a complete, production-grade AI platform built with FastAPI, PostgreSQL/SQLite, React, and Tailwind CSS. It empowers developers and enterprises to host their own secure, rate-limited, and multi-model AI gateway supporting advanced visual, semantic, voice, and agentic workflows.
 
 ---
 
-## 📐 System Architecture
+## 🔮 Beautiful Dashboard Showcase
 
-The gateway is built on a clean, decoupled layer system:
+*A premium, high-fidelity dark glassmorphic workbench designed to provide zero-latency controls.*
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 🌌 YOUR OWN API                                           [sk-cfeb06... 🔑] │
+├───────────────────┬─────────────────────────────────────────────────────────┤
+│ 📊 Dashboard Home │  API USAGE (Free Tier Plan)                             │
+│ 👁️ Vision AI       │  [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░]  96 / 100 Req Left │
+│ 📚 Document RAG   │                                                         │
+│ 🎨 Creative Image │  ACTIVE PLAYGROUNDS                                     │
+│ 🔊 Voice & Speech │  ┌───────────────────────┐   ┌───────────────────────┐  │
+│ 🤖 AI Agents      │  │ 🤖 ReAct Autonomous   │   │ 📚 Vector RAG Ingest  │  │
+│ ⚙️ Key Settings   │  │ ├ Thoughts (Orange)   │   │ ├ Overlap Chunker     │  │
+│                   │  │ ├ Actions  (Sky-blue) │   │ ├ Cosine Matcher      │  │
+│                   │  │ └ Answers  (White)    │   │ └ Citation Synthesis  │  │
+│                   │  └───────────────────────┘   └───────────────────────┘  │
+└───────────────────┴─────────────────────────────────────────────────────────┘
+```
+
+> [!TIP]
+> **Dashboard Screen Preview Placement**: Take a screenshot of the beautiful dark-mode interface at `http://localhost:5173/dashboard` and drop it here as `assets/dashboard_home.png` for a breathtaking visual landing page!
+
+---
+
+## 🛠️ The 5 Advanced AI Suites
+
+### 1. 👁️ Vision AI Suite (`/v1/vision`)
+A computer-vision sandbox providing object analysis, structural OCR, form parsing, and side-by-side visual difference metrics.
+* **OCR Coordinate Extractor**: Decodes printed/handwritten text and calculates precise bounding box coordinates.
+* **Document Scanner**: Automatically parses financial assets, receipts, and invoices into clean structured JSON grids.
+* **Visual Comparator**: Computes similarity metrics and details visual divergence between two images side-by-side.
+
+### 2. 📚 Retrieval-Augmented Generation (RAG) (`/v1/rag`)
+A self-contained, zero-dependency document ingestion and semantic query framework.
+* **Pure-Python PDF Stream Decoder**: Decodes `FlateDecode` streams with standard `zlib`, bypassing heavy C++ compilation requirements.
+* **Sentence-Aware Chunker**: Segments text into `1000-character` sections with a `200-character` overlap to preserve contexts.
+* **Pure-Python Cosine VSM**: Runs term frequency (TF) and inverse document frequency (IDF) with Laplacian smoothing.
+* **Citation Chat Shell**: Renders answers with interactive, expandable citation cards listing source chunks and confidence scores.
+
+### 3. 🎨 Creative Image Suite (`/v1/images`)
+A text-to-image generator, canvas mask editor, and variation pipeline built on SDXL & DALL-E 3.
+* **HTML5 Canvas Inpainter**: Paint mask overlays directly on uploaded images to modify elements securely.
+* **Media Gallery**: Features instant downloads, glassmorphic filters, and animated loading states.
+
+### 4. 🔊 Voice & Speech AI (`/v1/audio`)
+A transcription and synthesis pipeline supporting real-time text-synchronization.
+* **Whisper STT Timeline**: Segmented tables displaying text alongside millisecond timestamps.
+* **Dynamic Wave Bubbles**: Micro-animated canvas elements pulsing dynamically based on voice playback.
+
+### 5. 🤖 Autonomous ReAct Agents (`/v1/agents`)
+A complete Reasoning and Action orchestrator that plans, uses tools, and solves inquiries.
+* **Integrated Toolsets**: Equipped with `web_search` (crawling), `calculator` (math), and `rag_search` (document lookups).
+* **Developer Terminal**: Renders thought loops using custom orange (Thoughts), sky-blue (Actions), green (Observations), and white (Final Answers) border layouts.
+
+---
+
+## 📐 Unified Decoupled Architecture
 
 ```
                   ┌──────────────────────────────────────────┐
-                  │          Client Application              │
+                  │      React Dashboard Client (Port 5173)  │
                   └────────────────────┬─────────────────────┘
                                        │
-                                       │ Authorization: Bearer sk-xxxxxx...
+                                       │ HTTP / EventStream (SSE)
                                        ▼
                   ┌──────────────────────────────────────────┐
-                  │        FastAPI API Key Middleware        │
-                  │   - Extracts key & hashes using SHA-256   │
-                  └────────────────────┬─────────────────────┘
-                                       │
-                                       ├────────────────────────────┐
-                                       ▼                            ▼
-                  ┌──────────────────────────┐         ┌──────────────────────────┐
-                  │    Rate Limit Checker    │         │    Database Validator    │
-                  │   - Counts logs in past  │         │   - Matches hashed key   │
-                  │     24h window (SQL)     │         │     against active keys  │
-                  └────────────┬─────────────┘         └────────────┬─────────────┘
-                               │                                    │
-                               └─────────────────┬──────────────────┘
-                                                 │ (If Valid & Under Limit)
-                                                 ▼
-                  ┌──────────────────────────────────────────┐
-                  │            Router Dispatcher             │
-                  │   - Routes to Mock, Ollama, or Cloud APIs│
+                  │       FastAPI API Gateway (Port 8000)    │
+                  ├──────────────────────────────────────────┤
+                  │  - Custom Rolling Window Rate Limiter    │
+                  │  - Cryptographic API Key Hasher (SHA256)  │
                   └────────────────────┬─────────────────────┘
                                        │
             ┌──────────────────────────┼──────────────────────────┐
             ▼                          ▼                          ▼
  ┌────────────────────┐     ┌────────────────────┐     ┌────────────────────┐
- │  Mock LLM (Local)  │     │ Ollama Local LLaMA │     │ Gemini / Claude    │
+ │  Mock LLM Engine   │     │ Ollama Local LLaMA │     │ Cloud Services     │
+ │  (Instant Sandbox) │     │ (Private Gateway)  │     │ (Claude / Gemini)  │
  └────────────────────┘     └────────────────────┘     └────────────────────┘
 ```
-
-### Key Highlights
-*   **API Key Hashing**: Plaintext API keys are never stored in the database. Instead, they are hashed using **SHA-256**. This ensures complete security in case of database leaks.
-*   **Rolling 24-Hour Rate Limiting**: A custom window rate limiter counts requests associated with the active API key in the database over the previous 24 hours.
-*   **OpenAI Compatibility**: The `/v1/chat` endpoint is compatible with the standard OpenAI schema, meaning it is a drop-in replacement for OpenAI SDK clients.
 
 ---
 
 ## 📁 Project Structure
 
-```
+```text
 your_own_api/
-├── .env                  # Secrets and configurations
-├── requirements.txt      # Project dependencies
-├── run_verification.py   # Automated integration test suite
-├── README.md             # Documentation
-└── app/
-    ├── __init__.py
-    ├── config.py         # Pydantic Settings config loader
-    ├── database.py       # DB Engine & SQLAlchemy Session setup
-    ├── models.py         # SQLAlchemy ORM Tables (User, APIKey, UsageLog)
-    ├── schemas.py        # Pydantic validation schemas
-    ├── security.py       # Password hashing (bcrypt), JWT, and Key generation
-    ├── middleware.py     # API Key extraction & rate limiter checks
-    ├── main.py           # FastAPI entrypoint & router aggregator
-    └── routers/
-        ├── __init__.py
-        ├── auth.py       # /register and /login endpoints
-        ├── api_keys.py   # /v1/usage and /v1/regenerate-key endpoints
-        └── chat.py       # /v1/chat completion router
+├── app/
+│   ├── config.py         # Config loader & system environments
+│   ├── database.py       # DB Session & engine lifecycle
+│   ├── middleware.py     # API Key extractor & quota checks
+│   ├── models.py         # Relational DB Models (Users, Keys, RAG, Usage)
+│   ├── schemas.py        # Pydantic Request/Response models
+│   ├── security.py       # Password bcrypt & SHA-256 Key generators
+│   ├── main.py           # FastAPI server initialization
+│   └── routers/
+│       ├── agents.py     # Autonomous agents engine
+│       ├── audio.py      # Voice TTS/STT router
+│       ├── chat.py       # Unified completion dispatcher
+│       ├── images.py     # Creative suite & inpainting
+│       ├── rag.py        # Semantic vector database ingest
+│       └── vision.py     # Visual sandbox router
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── DashboardHome.tsx     # Quota summary & API lists
+│   │   │   ├── VisionPlayground.tsx  # Interactive OCR & scans
+│   │   │   ├── RAGPlayground.tsx     # PDF library & Citation Chat
+│   │   │   ├── ImagePlayground.tsx   # Canvas mask painter
+│   │   │   ├── AudioPlayground.tsx   # Speech Wave & timestamps
+│   │   │   └── AgentPlayground.tsx   # ReAct loop developer terminal
+│   │   └── components/
+│   │       └── dashboard/            # Layouts & Glassmorphic Sidebars
+└── run_verification.py   # Full automated integration test suite
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Configure the Environment
-Copy the configuration variables in `.env`. By default, the system will use a local SQLite database (`api.db`) and a mock AI generator so that you can run it immediately with zero setup:
-```env
-DATABASE_URL=sqlite:///./api.db
-AI_PROVIDER=mock
-```
-
-To run a live model, download [Ollama](https://ollama.com/), pull a model (`ollama run llama3`), and configure:
-```env
-AI_PROVIDER=ollama
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama3
-```
-
-### 2. Set Up Virtual Environment & Install Dependencies
+### 1. Build and Start Dev Environment
+Configure the sandbox settings inside the `.env` file (SQLite and Mock AI engines are default for quick setup):
 ```bash
-# Create virtual environment
+# Clone the repository
+git clone https://github.com/zshank902-ai/your-own-api.git
+cd your-own-api
+
+# Install backend dependencies
 python -m venv .venv
-
-# Activate virtual environment
-# Windows:
-.venv\Scripts\activate
-# macOS/Linux:
-source .venv/bin/activate
-
-# Install requirements
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-```
 
-### 3. Run the Automated Integration Tests
-This script will spin up the server in the background, run registration, chat completions, usage queries, key revocation, and clean up the database:
-```bash
+# Run full integration test suite (Asserts 12/12 test cases)
 python run_verification.py
+
+# Start Backend Server
+uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-### 4. Start the Application Server
-Run the FastAPI production server using Uvicorn:
+### 2. Start Frontend Playground
+Ensure you have Node.js installed on your workspace:
 ```bash
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+cd frontend
+npm install
+npm run dev
 ```
-Open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) in your browser to view the interactive Swagger documentation.
+Open **[http://localhost:5173](http://localhost:5173)** to access your visual control panel!
 
 ---
 
-## 🛠️ API Documentation & Usage
-
-### 1. Register and Get your API Key
-*   **Endpoint**: `POST /register`
-*   **Payload**:
-```json
-{
-  "email": "developer@example.com",
-  "password": "securepassword123"
-}
-```
-*   **Response**:
-```json
-{
-  "user": {
-    "id": 1,
-    "email": "developer@example.com",
-    "is_active": true,
-    "created_at": "2026-05-19T23:45:00Z"
-  },
-  "api_key": "sk-b7e210ba59ec4b63b4001b10d80efacc"
-}
-```
-> [!WARNING]
-> Keep your `api_key` safe! It is only returned in plaintext during registration.
-
-### 2. Make an AI Chat Request
-*   **Endpoint**: `POST /v1/chat`
-*   **Headers**: `Authorization: Bearer sk-b7e210ba59ec4b63b4001b10d80efacc`
-*   **Payload**:
-```json
-{
-  "model": "llama3",
-  "messages": [
-    {"role": "user", "content": "Explain neural networks in one sentence."}
-  ],
-  "temperature": 0.7
-}
-```
-*   **Response**:
-```json
-{
-  "id": "chatcmpl-a9b8c7d6e5f4",
-  "object": "chat.completion",
-  "created": 1716162300,
-  "model": "llama3",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "A neural network is a computational model inspired by the human brain that learns patterns from data to perform complex tasks like classification or prediction."
-      },
-      "finish_reason": "stop"
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 7,
-    "completion_tokens": 30,
-    "total_tokens": 37
-  }
-}
-```
-
-### 3. Check Key Usage and Rate Limit
-*   **Endpoint**: `GET /v1/usage`
-*   **Headers**: `Authorization: Bearer sk-b7e210ba59ec4b63b4001b10d80efacc`
-*   **Response**:
-```json
-{
-  "total_requests": 1,
-  "limit": 100,
-  "remaining_requests": 99,
-  "reset_time_utc": "2026-05-20T23:45:00Z"
-}
-```
-
-### 4. Revoke and Regenerate API Key
-*   **Endpoint**: `POST /v1/regenerate-key`
-*   **Headers**: `Authorization: Bearer sk-b7e210ba59ec4b63b4001b10d80efacc`
-*   **Response**:
-```json
-{
-  "new_api_key": "sk-9546ae68af754c428bb6212a5d1f0aaf",
-  "prefix": "sk-9546ae",
-  "created_at": "2026-05-19T23:46:12Z"
-}
-```
-*(The old key will be revoked immediately and returns 401 Unauthorized for future requests).*
-
----
-
-## 🔒 Security Practices
-1.  **SHA-256 Key Hashing**: Validates keys against cryptographic hashes rather than plaintext database columns.
-2.  **Strict Token Prefixing**: Pre-validated prefixes (`sk-`) help block malformed keys early.
-3.  **Password Encrypted via BCrypt**: Secure password storage utilizing industry-standard password derivation functions.
+## 🛡️ License
+Distributed under the MIT License. See `LICENSE` for more information.
