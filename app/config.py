@@ -6,6 +6,7 @@ Supports development (SQLite) and production (PostgreSQL + Redis) modes.
 """
 
 import os
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional, List
 
@@ -76,6 +77,19 @@ class Settings(BaseSettings):
     @property
     def is_development(self) -> bool:
         return self.ENVIRONMENT.lower() == "development"
+
+    @model_validator(mode="after")
+    def sanitize_database_url(self) -> "Settings":
+        """
+        Ensures that if we are running in the Docker container (indicated by the
+        existence of /app/data), any SQLite database URL is redirected to the
+        writable /app/data directory.
+        """
+        if os.path.exists("/app/data"):
+            if self.DATABASE_URL.startswith("sqlite"):
+                if "sqlite:////app/data/" not in self.DATABASE_URL:
+                    self.DATABASE_URL = "sqlite:////app/data/api.db"
+        return self
 
     # Load from .env file in project root
     model_config = SettingsConfigDict(
