@@ -53,8 +53,8 @@ COPY ./alembic ./alembic
 COPY alembic.ini .
 COPY requirements.txt .
 
-# Create log directory and set permissions
-RUN mkdir -p /app/logs && chown -R apiuser:apiuser /app/logs
+# Create log and data directories and set permissions
+RUN mkdir -p /app/logs /app/data && chown -R apiuser:apiuser /app/logs /app/data
 
 # Switch to non-root user
 USER apiuser
