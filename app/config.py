@@ -17,7 +17,11 @@ class Settings(BaseSettings):
 
     # ─── Database ─────────────────────────────────────────────────────────
     # Local default: SQLite. Docker override: PostgreSQL (set in docker-compose.yml)
-    DATABASE_URL: str = "sqlite:///./api.db"
+    DATABASE_URL: str = (
+        "sqlite:////app/data/api.db"
+        if os.path.exists("/app/data")
+        else "sqlite:///./api.db"
+    )
 
     # ─── Redis ─────────────────────────────────────────────────────────────
     REDIS_URL: Optional[str] = None            # None = skip Redis, use DB-based counting
