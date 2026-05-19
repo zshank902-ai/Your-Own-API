@@ -1,0 +1,70 @@
+# =============================================================================
+# .dockerignore — Exclude files from Docker build context
+# =============================================================================
+
+# Version control
+.git
+.gitignore
+.github
+
+# Python cache / compiled files
+__pycache__
+*.py[cod]
+*$py.class
+*.pyo
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Virtual environments — NEVER copy these into the image
+.venv
+venv
+env
+ENV
+
+# Local database files (SQLite)
+*.db
+*.sqlite3
+
+# Log files
+logs/
+*.log
+
+# Environment files — NEVER bake secrets into the image
+.env
+.env.*
+!.env.example
+
+# Docker-related files not needed in the image
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Nginx config (mounted as a volume, not baked in)
+nginx/
+
+# Node.js frontend (separate build — not part of the API image)
+frontend/
+node_modules/
+
+# SDK directories
+sdk/
+
+# Documentation
+docs/
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+
+# IDE / Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test scripts and verification
+run_verification.py
+
+# README
+README.md
