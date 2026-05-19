@@ -72,7 +72,7 @@ CMD ["sh", "-c", "alembic upgrade head && gunicorn app.main:app \
     --worker-class uvicorn.workers.UvicornWorker \
     --bind 0.0.0.0:8000 \
     --timeout 120 \
-    --keepalive 5 \
+    --keep-alive 5 \
     --log-level info \
     --access-logfile /app/logs/access.log \
     --error-logfile /app/logs/error.log"]
